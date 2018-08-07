@@ -4,11 +4,15 @@
 void	CRenderTarget::phase_scene_prepare	()
 {
 	// KD: we need to clean up G-buffer every frame to avoid "ghosting" on sky
-	u_setrt(rt_Position, rt_Normal, rt_Color, 0);
+	u_setrt(rt_Position, rt_Normal, rt_Color, 0); //Надо б все эти вызовы проглядеть
 	CHK_DX(HW.pDevice->Clear(0L, NULL, D3DCLEAR_TARGET, 0x0, 1.0f, 0L));
 
 	// Clear depth & stencil
-	u_setrt(Device.dwWidth, Device.dwHeight, HW.pBaseRT, NULL, NULL, HW.pBaseZB);
+	if (Device.m_SecondViewport.IsSecondVpFrame)
+		u_setrt(Device.dwWidth, Device.dwHeight, RImplementation.Target->rt_secondVP->pRT, NULL, NULL, /* Не знаю, нужен ли он тут*/ HW.pBaseZB); // Изменить ещё ширину/высоту и подумать над последним аргументом
+	else
+		u_setrt(Device.dwWidth, Device.dwHeight, HW.pBaseRT, NULL, NULL, HW.pBaseZB); //Вот тут неверное тоже.
+
 	CHK_DX(HW.pDevice->Clear(0L, NULL, D3DCLEAR_ZBUFFER | D3DCLEAR_STENCIL, 0x0, 1.0f, 0L));
 
 	u32 Offset;

@@ -317,18 +317,19 @@ void CCameraManager::ApplyDevice (float _viewport_near)
 	//Device.mProject.build_projection(deg2rad(fFov), fAspect, _viewport_near, fFar);
 	//--#SM+# Begin-- +SecondVP+
 	// Пересчитываем FOV для второго вьюпорта [Recalculate scene FOV for SecondVP frame]
-	if (Device.m_SecondViewport.IsSVPFrame())
+	//Вроде Загольский говорил, что фов для второго вьюпорта надо устанавливать во втором проходе рендера трансформацией матриц, а типа не тут.
+	/*if (Device.m_SecondViewport.IsSVPFrame())
 	{
 		// Для второго вьюпорта FOV выставляем здесь
 		Device.fFOV = float(atan(tan(Device.fFOV * (0.5 * PI / 180)) / g_pGamePersistent->m_pGShaderConstants.hud_params.y) / (0.5 * PI / 180));
 
 		// Предупреждаем что мы изменили настройки камеры
-		Device.m_SecondViewport.m_bCamReady = true;
+		//Device.m_SecondViewport.m_bCamReady = true;
 	}
 	else
 	{
-		Device.m_SecondViewport.m_bCamReady = false;
-	}
+		//Device.m_SecondViewport.m_bCamReady = false;
+	}*/
 	Device.mProject.build_projection(deg2rad(Device.fFOV), fAspect, _viewport_near, fFar);
 	//--#SM+# End--
 

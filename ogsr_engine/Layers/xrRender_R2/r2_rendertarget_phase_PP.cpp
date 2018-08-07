@@ -97,7 +97,11 @@ struct TL_2c3uv		{
 void CRenderTarget::phase_pp		()
 {
 	// combination/postprocess
-	u_setrt				( Device.dwWidth,Device.dwHeight,HW.pBaseRT,NULL,NULL,HW.pBaseZB);
+	if (Device.m_SecondViewport.IsSecondVpFrame)
+		u_setrt(Device.dwWidth, Device.dwHeight, RImplementation.Target->rt_secondVP->pRT, NULL, NULL, /* Не знаю, нужен ли он тут*/ HW.pBaseZB); // Изменить ещё ширину/высоту и подумать над последним аргументом
+	else
+		u_setrt(Device.dwWidth, Device.dwHeight, HW.pBaseRT, NULL, NULL, HW.pBaseZB); //Вот тут не знаю, нужны ли вообще постпроцессы во втором рендере.
+
 	RCache.set_Shader	(s_postprocess	);
 
 	int		gblend		= clampr		(iFloor((1-param_gray)*255.f),0,255);

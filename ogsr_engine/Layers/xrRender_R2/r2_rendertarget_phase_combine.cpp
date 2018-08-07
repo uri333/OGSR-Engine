@@ -22,7 +22,8 @@ void	CRenderTarget::phase_combine	()
 
 	//*** exposure-pipeline
 	u32 gpu_id = Device.dwFrame % 2;
-	if (Device.m_SecondViewport.IsSVPActive())	//--#SM+#-- +SecondVP+ Fix for screen flickering
+	//KRodin: пока выключил, посмотрим
+	/*if (Device.m_SecondViewport.IsSVPActive())	//--#SM+#-- +SecondVP+ Fix for screen flickering
 	{
 		gpu_id = (Device.dwFrame - 1) % 2;	// Фикс "мерцания" tonemapping (HDR) после выключения двойного рендера. 
 											// Побочный эффект - при работе двойного рендера скорость изменения tonemapping (HDR) падает в два раза
@@ -30,7 +31,7 @@ void	CRenderTarget::phase_combine	()
 											// Эти кадры относительно похожи друг на друга, однако при включЄнном двойном рендере
 											// в половине кадров оказывается картинка из второго рендера, и поскольку она часто может отличатся по цвету\яркости
 											// то при попытке создания "плавного" перехода между ними получается эффект мерцания
-	}
+	}*/
 
 	t_LUM_src->surface_set		(rt_LUM_pool[gpu_id*2+0]->pSurface);
 	t_LUM_dest->surface_set		(rt_LUM_pool[gpu_id*2+1]->pSurface);
@@ -225,9 +226,14 @@ void	CRenderTarget::phase_combine	()
 	}
 
 	// Combine everything + perform AA
-	if		(PP_Complex)	u_setrt		( rt_Color,0,0,HW.pBaseZB );			// LDR RT
-	else					u_setrt		( Device.dwWidth,Device.dwHeight,HW.pBaseRT,NULL,NULL,HW.pBaseZB);
-	//. u_setrt				( Device.dwWidth,Device.dwHeight,HW.pBaseRT,NULL,NULL,HW.pBaseZB);
+	if (PP_Complex)
+		u_setrt( rt_Color,0,0,HW.pBaseZB ); // LDR RT
+	else
+		if (Device.m_SecondViewport.IsSecondVpFrame)
+			u_setrt( Device.dwWidth,Device.dwHeight,RImplementation.Target->rt_secondVP->pRT,NULL,NULL,/* Не знаю, нужен ли он тут*/ HW.pBaseZB); // Изменить ещё ширину/высоту и подумать над последним аргументом
+		else
+			u_setrt( Device.dwWidth,Device.dwHeight,HW.pBaseRT,NULL,NULL,HW.pBaseZB);
+
 	RCache.set_CullMode		( CULL_NONE )	;
 	RCache.set_Stencil		( FALSE		)	;
 	if (1)	
@@ -307,7 +313,10 @@ void	CRenderTarget::phase_combine	()
 		if ((ps_r2_pp_flags.test(R2PP_FLAG_SUNSHAFTS) && (ps_sunshafts_mode == R2SS_VOLUMETRIC)) || ps_r2_pp_flags.test(R2FLAG_VOLLIGHT))
 			phase_accumulator_volumetric();
 
-		u_setrt(Device.dwWidth, Device.dwHeight, HW.pBaseRT, NULL, NULL, HW.pBaseZB);
+		if (Device.m_SecondViewport.IsSecondVpFrame)
+			u_setrt(Device.dwWidth, Device.dwHeight, RImplementation.Target->rt_secondVP->pRT, NULL, NULL, /* Не знаю, нужен ли он тут*/ HW.pBaseZB); // Изменить ещё ширину/высоту и подумать над последним аргументом
+		else
+			u_setrt(Device.dwWidth, Device.dwHeight, HW.pBaseRT, NULL, NULL, HW.pBaseZB); //Вот тут будем менять рендертаргет
 	}
 
 #ifdef DEBUG

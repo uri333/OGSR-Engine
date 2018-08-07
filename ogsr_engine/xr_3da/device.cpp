@@ -109,7 +109,10 @@ void CRenderDevice::End		(void)
 	Memory.dbg_check		();
     CHK_DX(HW.pDevice->EndScene());
 
-	if (!Device.m_SecondViewport.IsSVPFrame() && !Device.m_SecondViewport.m_bCamReady) //--#SM+#-- +SecondVP+ Не выводим кадр из второго вьюпорта на экран (на практике у нас экранная картинка обновляется минимум в два раза реже) [don't flush image into display for SecondVP-frame]
+	//И вообще заметка. Для эксперимента, вообще не пропускать кадры. Попробовать зарендерить в прицел и так отрендеренный кадр, пусть даже с худом и прочим.
+
+	//Вроде это не нужно.
+	//if (!Device.m_SecondViewport.IsSVPFrame() && !Device.m_SecondViewport.m_bCamReady) //--#SM+#-- +SecondVP+ Не выводим кадр из второго вьюпорта на экран (на практике у нас экранная картинка обновляется минимум в два раза реже) [don't flush image into display for SecondVP-frame]
 		HW.pDevice->Present(nullptr, nullptr, nullptr, nullptr);
 #endif
 }
@@ -320,12 +323,11 @@ void CRenderDevice::Run			()
 				frame_timer.Start();	
 
 				if (b_is_Active)							{
-					if (Begin())				{
-
-						seqRender.Process						(rp_Render);
+					if (Begin()) { //Начало рендера
+						seqRender.Process(rp_Render);
 						if (psDeviceFlags.test(rsCameraPos) || psDeviceFlags.test(rsStatistic) || Statistic->errors.size())	
-							Statistic->Show						();
-						End										();
+							Statistic->Show();
+						End(); //Конец рендера
 					}
 				}
 				Statistic->RenderTOTAL_Real.End			();
@@ -523,7 +525,8 @@ void CRenderDevice::CSecondVPParams::SetSVPActive(bool bState) //--#SM+#-- +Seco
 		g_pGamePersistent->m_pGShaderConstants.m_blender_mode.z = (m_bIsActive ? 1.0f : 0.0f);
 }
 
-bool CRenderDevice::CSecondVPParams::IsSVPFrame() //--#SM+#-- +SecondVP+
+// Вынести в хедер
+bool CRenderDevice::CSecondVPParams::IsSVPFrame() const //--#SM+#-- +SecondVP+
 {
-	return IsSVPActive() && ((Device.dwFrame % m_FrameDelay) == 0);
+	return /*IsSVPActive() &&*/ IsSecondVpFrame;
 }

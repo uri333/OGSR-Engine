@@ -594,6 +594,8 @@ void CLevel::OnRender()
 
 	Render->AfterWorldRender(); //--#SM+#-- +SecondVP+
 
+	if ( !Device.m_SecondViewport.IsSVPFrame() ) {
+
 	//отрисовать интерфейc пользователя
 	HUD().RenderUI();
 
@@ -702,6 +704,9 @@ void CLevel::OnRender()
 		}
 	}
 #endif
+
+	}
+
 }
 
 void CLevel::OnEvent(EVENT E, u64 P1, u64 /**P2/**/)

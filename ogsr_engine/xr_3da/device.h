@@ -28,21 +28,25 @@ public:
 	class ENGINE_API CSecondVPParams //--#SM+#-- +SecondVP+
 	{
 	public:
-		bool m_bCamReady; // Флаг готовности камеры (FOV, позиция, и т.п) к рендеру второго вьюпорта
+		//KRodin: глянуть, как юзается и где.
+		//bool m_bCamReady; // Флаг готовности камеры (FOV, позиция, и т.п) к рендеру второго вьюпорта
+		bool IsSecondVpFrame = false;
 	private:
 		bool m_bIsActive;  // Флаг активации рендера во второй вьюпорт
-		u8   m_FrameDelay; // На каком кадре с момента прошлого рендера во второй вьюпорт мы начнём новый (не может быть меньше 2 - каждый второй кадр, чем больше тем более низкий FPS во втором вьюпорте)
+		//Поправить переменную и всё что с ней связано под новые реалии
+		//u8   m_FrameDelay; // На каком кадре с момента прошлого рендера во второй вьюпорт мы начнём новый (не может быть меньше 2 - каждый второй кадр, чем больше тем более низкий FPS во втором вьюпорте)
 	public:
-		IC bool IsSVPActive() { return m_bIsActive; }
+		IC bool IsSVPActive() const { return m_bIsActive; }
 		void    SetSVPActive(bool bState);
-		bool    IsSVPFrame();
+		bool    IsSVPFrame() const;
 
-		IC u8 GetSVPFrameDelay() { return m_FrameDelay; }
-		void  SetSVPFrameDelay(u8 iDelay)
+		//Вот это тож поправить. Или убрать.
+		//IC u8 GetSVPFrameDelay() const { return m_FrameDelay; }
+		/*void  SetSVPFrameDelay(u8 iDelay)
 		{
 			m_FrameDelay = iDelay;
 			clamp<u8>(m_FrameDelay, 2, u8(-1));
-		}
+		}*/
 	};
 private:
     // Main objects used for creating and rendering the 3D scene
@@ -138,8 +142,8 @@ public:
 		m_bNearer			= FALSE;
 		//--#SM+#-- +SecondVP+
 		m_SecondViewport.SetSVPActive(false);
-		m_SecondViewport.SetSVPFrameDelay(2);
-		m_SecondViewport.m_bCamReady = false;
+		//m_SecondViewport.SetSVPFrameDelay(2);
+		//m_SecondViewport.m_bCamReady = false;
 	};
 
 	void	Pause							(BOOL bOn, BOOL bTimer, BOOL bSound, LPCSTR reason);
