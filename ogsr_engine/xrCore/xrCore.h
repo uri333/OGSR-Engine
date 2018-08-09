@@ -158,7 +158,7 @@ public:
 };
 
 // ********************************************** The Core definition
-class XRCORE_API xrCore 
+class XRCORE_API xrCore
 {
 public:
 	string64	ApplicationName;
@@ -181,16 +181,12 @@ public:
 	void		_initialize	(LPCSTR ApplicationName, LogCallback cb=0, BOOL init_fs=TRUE, LPCSTR fs_fname=0);
 	void		_destroy	();
 
-	static constexpr const char* GetBuildConfiguration() {
-#ifdef _M_X64
-		return "x64";
-#else
-		return "x86";
-#endif
-	}
+	static constexpr const char* GetBuildConfiguration();
 	const char* GetEngineVersion();
 };
 extern XRCORE_API xrCore Core;
 
 #include "Utils/thread_pool.hpp"
 extern XRCORE_API ThreadPool* TTAPI;
+
+extern XRCORE_API bool gModulesLoaded;

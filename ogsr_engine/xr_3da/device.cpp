@@ -23,7 +23,7 @@ ENGINE_API BOOL g_bRendering = FALSE;
 
 BOOL		g_bLoaded = FALSE;
 ref_light	precache_light = 0;
-int			g_dwFPSlimit = 121;
+unsigned int			g_dwFPSlimit = 121;
 
 BOOL CRenderDevice::Begin	()
 {
@@ -220,7 +220,7 @@ void CRenderDevice::Run			()
 
 	// Load FPS Lock
 	if (Core.ParamFlags.test(Core.nofpslock))
-		g_dwFPSlimit = -1;
+		g_dwFPSlimit = 0;
 	else if (Core.ParamFlags.test(Core.fpslock60))
 		g_dwFPSlimit = 61;
 	else if (Core.ParamFlags.test(Core.fpslock120))
@@ -251,15 +251,18 @@ void CRenderDevice::Run			()
 
 #ifndef ECO_RENDER
 				// FPS Lock
-				if (g_dwFPSlimit > 0)
+
+				static int menuFPSlimit = 61;
+				bool isMenuActive = IsMainMenuActive();
+
+				if (g_dwFPSlimit > 0 || isMenuActive)
 				{
 					static DWORD dwLastFrameTime = 0;
 					DWORD dwCurrentTime = timeGetTime();
-					if ((dwCurrentTime - dwLastFrameTime) < (1000 / g_dwFPSlimit))
+					if ((dwCurrentTime - dwLastFrameTime) < (1000 / (isMenuActive ? menuFPSlimit : g_dwFPSlimit)))
 						continue;
 					dwLastFrameTime = dwCurrentTime;
 				}
-
 #endif // !ECO_RENDER
 
 #ifdef DEDICATED_SERVER
