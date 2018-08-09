@@ -918,7 +918,7 @@ void CWeapon::UpdateCL		()
 void CWeapon::renderable_Render		()
 {
 	//KRodin: чтоб ствол в руках актора не был виден внутри 3D прицела.
-	if (Device.m_SecondViewport.IsSVPFrame() && this->m_fZoomRotationFactor > 0.05f)
+	if (Device.m_SecondViewport.IsSecondVpFrame && this->m_fZoomRotationFactor > 0.05f)
 		return;
 
 	UpdateXForm				();

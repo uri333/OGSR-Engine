@@ -202,19 +202,13 @@ void CRender::Render		() //Ну собственно два прохода рендеринга делаем тут.
 	//Ещё не загрузился уровень? - выходим
 	if( !(g_pGameLevel && g_pGameLevel->pHUD) )	return;
 
-	// Попытка изменить фов
-	// Может лучше попробовать поиграться с Device.mFullTransform
-        if ( Device.m_SecondViewport.IsSVPFrame() ) {
-          // Для второго вьюпорта FOV выставляем здесь
-          Device.fFOV = float( atan( tan( Device.fFOV * ( 0.5 * PI / 180 ) ) / g_pGamePersistent->m_pGShaderConstants.hud_params.y ) / ( 0.5 * PI / 180 ) );
-
-          // Предупреждаем что мы изменили настройки камеры
-          //Device.m_SecondViewport.m_bCamReady = true;
-        } //else {
-          //Device.m_SecondViewport.m_bCamReady = false;
-       // }
-        Device.mProject.build_projection( deg2rad( Device.fFOV ), Device.fASPECT, VIEWPORT_NEAR, g_pGamePersistent->Environment().CurrentEnv.far_plane );
-	//
+	// Для второго вьюпорта FOV выставляем здесь
+	if ( Device.m_SecondViewport.IsSecondVpFrame ) {
+		Device.fFOV = float( atan( tan( Device.fFOV * ( 0.5 * PI / 180 ) ) / g_pGamePersistent->m_pGShaderConstants.hud_params.y ) / ( 0.5 * PI / 180 ) );
+		Device.mProject.build_projection( deg2rad( Device.fFOV ), Device.fASPECT, VIEWPORT_NEAR, g_pGamePersistent->Environment().CurrentEnv.far_plane );
+		Device.mFullTransform.mul(Device.mProject, Device.mView);
+		RCache.set_xform_project(Device.mProject);
+	}
 
 	// Configure
 	RImplementation.o.distortion				= FALSE;		// disable distorion
@@ -232,8 +226,8 @@ void CRender::Render		() //Ну собственно два прохода рендеринга делаем тут.
 	}
 
 	//******* Z-prefill calc - DEFERRER RENDERER
-	//Этот кусок вообще убрать после тестов!!!
-	if (ps_r2_ls_flags.test(R2FLAG_ZFILL))		{
+	//Это вообще надо порезать
+	if constexpr (false) /*(ps_r2_ls_flags.test(R2FLAG_ZFILL))*/ {
 		Device.Statistic->RenderCALC.Begin			();
 		float		z_distance	= ps_r2_zfill		;
 		Fmatrix		m_zfill, m_project				;
@@ -298,8 +292,7 @@ void CRender::Render		() //Ну собственно два прохода рендеринга делаем тут.
 	{
 		// level, DO NOT SPLIT
 		Target->phase_scene_begin				();
-		if ( !Device.m_SecondViewport.IsSecondVpFrame )
-			r_dsgraph_render_hud();
+		r_dsgraph_render_hud					();
 		r_dsgraph_render_graph					(0);
 		r_dsgraph_render_lods					(true,true);
 		if(Details)	Details->Render				();
@@ -371,8 +364,7 @@ void CRender::Render		() //Ну собственно два прохода рендеринга делаем тут.
 
 		// level
 		Target->phase_scene_begin				();
-		if ( !Device.m_SecondViewport.IsSecondVpFrame )
-			r_dsgraph_render_hud();
+		r_dsgraph_render_hud					();
 		r_dsgraph_render_lods					(true,true);
 		if(Details)	Details->Render				();
 		Target->phase_scene_end					();
@@ -445,30 +437,10 @@ void CRender::render_forward				()
 		r_dsgraph_render_graph					(1)	;					// normal level, secondary priority
 		PortalTraverser.fade_render				()	;					// faded-portals
 
-		if ( !Device.m_SecondViewport.IsSecondVpFrame ) {
 		r_dsgraph_render_sorted					()	;					// strict-sorted geoms
 		r_dsgraph_render_hud_sorted				()	;
-		}
 		g_pGamePersistent->Environment().RenderLast()	;					// rain/thunder-bolts
 	}
 
 	RImplementation.o.distortion				= FALSE;				// disable distorion
-}
-
-// Перед началом рендера мира --#SM+#-- +SecondVP+
-void CRender::BeforeWorldRender() {}
-
-// После рендера мира и пост-эффектов --#SM+#-- +SecondVP+
-// Вот это или убрать или перенести куда-то.
-void CRender::AfterWorldRender()
-{
-	//Вроде более не нужно, будем рендерить же сразу и в основной вьюпорт и в дополнительный.
-	/*if (Device.m_SecondViewport.IsSVPFrame())
-	{
-		// Делает копию бэкбуфера (текущего экрана) в рендер-таргет второго вьюпорта
-		IDirect3DSurface9 * pBackBuffer = nullptr;
-		HW.pDevice->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &pBackBuffer); // Получаем ссылку на бэкбуфер
-		D3DXLoadSurfaceFromSurface(Target->rt_secondVP->pRT, nullptr, nullptr, pBackBuffer, nullptr, nullptr, D3DX_DEFAULT, 0);
-		pBackBuffer->Release(); // Корректно очищаем ссылку на бэкбуфер (иначе игра зависнет в опциях)
-	}*/
 }

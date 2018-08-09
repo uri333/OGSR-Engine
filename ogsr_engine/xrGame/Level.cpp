@@ -581,20 +581,14 @@ extern void draw_wnds_rects();
 
 void CLevel::OnRender()
 {
-	Render->BeforeWorldRender();	//--#SM+#-- +SecondVP+
-
 	inherited::OnRender	();
 	
 	Game().OnRender();
 
 	//отрисовать трассы пуль
-	//Device.Statistic->TEST1.Begin();
 	BulletManager().Render();
-	//Device.Statistic->TEST1.End();
 
-	Render->AfterWorldRender(); //--#SM+#-- +SecondVP+
-
-	if ( !Device.m_SecondViewport.IsSVPFrame() ) {
+	if ( !Device.m_SecondViewport.IsSecondVpFrame ) {
 
 	//отрисовать интерфейc пользователя
 	HUD().RenderUI();
