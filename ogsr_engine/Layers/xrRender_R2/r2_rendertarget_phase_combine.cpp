@@ -280,13 +280,15 @@ void	CRenderTarget::phase_combine	()
 	}
 	RCache.set_Stencil		(FALSE);
 
+	if ( !Device.m_SecondViewport.IsSecondVpFrame ) {
 	//	if FP16-BLEND !not! supported - draw flares here, overwise they are already in the bloom target
 	/* if (!RImplementation.o.fp16_blend)*/	g_pGamePersistent->Environment().RenderFlares	();	// lens-flares
+	}
 
 	//	PP-if required
-	if (PP_Complex)		{
-		phase_pp		();
-	}
+	if (!Device.m_SecondViewport.IsSecondVpFrame)
+		if (PP_Complex)
+			phase_pp();
 
 	//	Re-adapt luminance
 	RCache.set_Stencil		(FALSE);
@@ -297,6 +299,8 @@ void	CRenderTarget::phase_combine	()
 		t_LUM_src->surface_set		(NULL);
 		t_LUM_dest->surface_set		(NULL);
 	}
+
+	if (!Device.m_SecondViewport.IsSecondVpFrame) {
 
 	// очистка рендертаргетов
 	if (ps_r2_ls_flags.test(R2FLAG_LENS_FLARES) || ps_r2_ls_flags.test(R2FLAG_LENS_DIRT)
@@ -317,6 +321,8 @@ void	CRenderTarget::phase_combine	()
 			u_setrt(Device.dwWidth, Device.dwHeight, RImplementation.Target->rt_secondVP->pRT, NULL, NULL, /* Ќе знаю, нужен ли он тут*/ HW.pBaseZB); // »зменить ещЄ ширину/высоту и подумать над последним аргументом
 		else
 			u_setrt(Device.dwWidth, Device.dwHeight, HW.pBaseRT, NULL, NULL, HW.pBaseZB); //¬от тут будем мен€ть рендертаргет
+	}
+
 	}
 
 #ifdef DEBUG
