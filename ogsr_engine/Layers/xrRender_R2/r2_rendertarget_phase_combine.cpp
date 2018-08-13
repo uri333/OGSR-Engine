@@ -230,7 +230,7 @@ void	CRenderTarget::phase_combine	()
 		u_setrt( rt_Color,0,0,HW.pBaseZB ); // LDR RT
 	else
 		if (Device.m_SecondViewport.IsSecondVpFrame)
-			u_setrt( Device.dwWidth,Device.dwHeight,RImplementation.Target->rt_secondVP->pRT,NULL,NULL,/* Не знаю, нужен ли он тут*/ HW.pBaseZB); // Изменить ещё ширину/высоту и подумать над последним аргументом
+			u_setrt( Device.m_SecondViewport.GetVpWidth(), Device.m_SecondViewport.GetVpHeight(),RImplementation.Target->rt_secondVP->pRT,NULL,NULL,/* Не знаю, нужен ли он тут*/ HW.pBaseZB); // Изменить ещё ширину/высоту и подумать над последним аргументом
 		else
 			u_setrt( Device.dwWidth,Device.dwHeight,HW.pBaseRT,NULL,NULL,HW.pBaseZB);
 
@@ -318,7 +318,7 @@ void	CRenderTarget::phase_combine	()
 			phase_accumulator_volumetric();
 
 		if (Device.m_SecondViewport.IsSecondVpFrame)
-			u_setrt(Device.dwWidth, Device.dwHeight, RImplementation.Target->rt_secondVP->pRT, NULL, NULL, /* Не знаю, нужен ли он тут*/ HW.pBaseZB); // Изменить ещё ширину/высоту и подумать над последним аргументом
+			u_setrt(Device.m_SecondViewport.GetVpWidth(), Device.m_SecondViewport.GetVpHeight(), RImplementation.Target->rt_secondVP->pRT, NULL, NULL, /* Не знаю, нужен ли он тут*/ HW.pBaseZB); // Изменить ещё ширину/высоту и подумать над последним аргументом
 		else
 			u_setrt(Device.dwWidth, Device.dwHeight, HW.pBaseRT, NULL, NULL, HW.pBaseZB); //Вот тут будем менять рендертаргет
 	}

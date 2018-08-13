@@ -27,11 +27,14 @@ class ENGINE_API CRenderDevice
 public:
 	class ENGINE_API CSecondVPParams //--#SM+#-- +SecondVP+
 	{
-	public:
-		bool IsSecondVpFrame = false;
 	private:
 		bool m_bIsActive;  // Флаг активации рендера во второй вьюпорт
 	public:
+		// TODO: Возможно, надо читать разрашение из конфигов оружия, т.к. допустим для Грозы, надо рендерить картинку в бОльшем разрешении, чем для какого-нибудь оружия с небольшим прицелом.
+		// Или рассчитывать по какой-нибудь формуле от разрешения монитора... Подумать, кароч. Пока тут фиксировано возвращается 800х600.
+		IC u32 GetVpWidth()  const { return 800; }
+		IC u32 GetVpHeight() const { return 600; }
+		bool IsSecondVpFrame = false;
 		IC bool IsSVPActive() const { return m_bIsActive; }
 		void SetSVPActive(bool bState);
 	};

@@ -98,7 +98,7 @@ void CRenderTarget::phase_pp		()
 {
 	// combination/postprocess
 	if (Device.m_SecondViewport.IsSecondVpFrame)
-		u_setrt(Device.dwWidth, Device.dwHeight, RImplementation.Target->rt_secondVP->pRT, NULL, NULL, /* Не знаю, нужен ли он тут*/ HW.pBaseZB); // Изменить ещё ширину/высоту и подумать над последним аргументом
+		u_setrt(Device.m_SecondViewport.GetVpWidth(), Device.m_SecondViewport.GetVpHeight(), RImplementation.Target->rt_secondVP->pRT, NULL, NULL, /* Не знаю, нужен ли он тут*/ HW.pBaseZB); // Изменить ещё ширину/высоту и подумать над последним аргументом
 	else
 		u_setrt(Device.dwWidth, Device.dwHeight, HW.pBaseRT, NULL, NULL, HW.pBaseZB); //Вот тут не знаю, нужны ли вообще постпроцессы во втором рендере.
 
